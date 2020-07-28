@@ -1,18 +1,13 @@
 const fs = require("fs");
-const chalk = require('chalk')
+const chalk = require('chalk');
+const { Console } = require("console");
 
-const getNotes = function(){
-    return 'Your notes...' ;
-}
-
-const AddNotes = function(title, body){
+const AddNotes = (title, body) => {
     const notes = loadNote();
 
-    const duplicateNotes = notes.filter((note) => {
-        return note.title === title; 
-    })
+    const duplicateNotes = notes.find(note => note.title === title);
 
-    if(duplicateNotes.length === 0) {
+    if(!duplicateNotes) {
         notes.push({
             title: title, 
             body: body
@@ -26,12 +21,12 @@ const AddNotes = function(title, body){
     
 }
 
-const saveNotes = function(notes){
+const saveNotes = notes => {
     const dataJSON = JSON.stringify(notes); 
     fs.writeFileSync('notes.json', dataJSON);
 }
 
-const loadNote = function() {
+const loadNote = () => {
     try{
         const dataBuffer = fs.readFileSync('notes.json');
         const dataJson = dataBuffer.toString(); 
@@ -41,13 +36,11 @@ const loadNote = function() {
     }
 }
 
-const removeNote = function (title){
+const removeNote = title => {
     console.log(title);
     const notes = loadNote();
     
-    const noteFilter = notes.filter((note) => {
-        return note.title === title;
-    }); 
+    const noteFilter = notes.filter(note => note.title === title); 
 
     if(noteFilter.length){
         notes.splice(notes.indexOf(noteFilter), 1); 
@@ -58,9 +51,32 @@ const removeNote = function (title){
     }
 }
 
+const listNotes = () => {
+    console.log(chalk.blue.inverse("This is yout list note: ")); 
+    const notes = loadNote(); 
+
+    notes.forEach(note => {
+        console.log(note.title);
+    });
+}
+
+const readNote = (title) => {
+    const notes = loadNote();
+    
+    const note = notes.find(note => note.title == title);
+    
+    if(note){
+        console.log(chalk.green.inverse(note.title)); 
+        console.log(note.body); 
+    }else {
+        console.log(chalk.red.inverse('Note not found')); 
+    }
+      
+}
 
 module.exports = {
-    getNotes: getNotes(),
     AddNotes: AddNotes, 
-    removeNote: removeNote
+    removeNote: removeNote, 
+    listNotes: listNotes,
+    readNote: readNote 
 } 
